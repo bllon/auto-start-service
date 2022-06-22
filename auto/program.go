@@ -1,21 +1,23 @@
 package auto
 
 import (
+	. "auto-start-service/common/mylog"
 	"fmt"
 	"github.com/kardianos/service"
+	"go.uber.org/zap"
 	"os/exec"
 )
 
 type Program struct{}
 
 func (p *Program) Start(s service.Service) error {
-	fmt.Println("server start")
+	Logger.Info("server start")
 	go p.run()
 	return nil
 }
 
 func (p *Program) Stop(s service.Service) error {
-	fmt.Println("server stop")
+	Logger.Info("server stop")
 	return nil
 }
 
@@ -32,10 +34,11 @@ func (p *Program) run() {
 	path := "./service.json"
 	Config, err := GetConfig(path)
 	if err != nil {
-		panic(any(err))
+		Logger.Error("read service.json error: ", zap.Error(err))
 	}
 
 	for _, item := range Config.CmdList {
+		fmt.Println()
 		if item.Status == false {
 			continue
 		}
@@ -44,12 +47,16 @@ func (p *Program) run() {
 			err := cmd.Start()
 			if err != nil {
 				panic(any(nil))
+				Logger.Error(item.Name+" service start error: ", zap.Error(err))
 			}
+			Logger.Info(item.Name + " 已执行")
+
 			//err = cmd.Wait()
 			//if err != nil {
-			//	panic(any(nil))
+			//	Logger.Error(item.Name+" 已停止运行, error: ", zap.Error(err))
 			//}
-			fmt.Println(item.Name + " 已执行start命令")
+			//
+			//Logger.Info(item.Name + " 已结束执行")
 		}()
 	}
 }

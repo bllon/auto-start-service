@@ -2,14 +2,13 @@ package main
 
 import (
 	"auto-start-service/auto"
-	"fmt"
+	. "auto-start-service/common/mylog"
+	"go.uber.org/zap"
 	"os"
 	"runtime"
 
 	"github.com/kardianos/service"
 )
-
-var logger service.Logger
 
 func main() {
 	NCPU := runtime.NumCPU()
@@ -24,7 +23,7 @@ func main() {
 	pro := &auto.Program{}
 	s, err := service.New(pro, serConfig)
 	if err != nil {
-		fmt.Println(err, "service.New() err")
+		Logger.Error("service.New() err: ", zap.Error(err))
 	}
 
 	//服务注册
@@ -32,9 +31,9 @@ func main() {
 		if os.Args[1] == "install" {
 			err = s.Install()
 			if err != nil {
-				fmt.Println("install err", err)
+				Logger.Error("install err: ", zap.Error(err))
 			} else {
-				fmt.Println("install success")
+				Logger.Info("install success")
 			}
 			return
 		}
@@ -42,9 +41,9 @@ func main() {
 		if os.Args[1] == "remove" {
 			err = s.Uninstall()
 			if err != nil {
-				fmt.Println("Uninstall err", err)
+				Logger.Error("Uninstall err: ", zap.Error(err))
 			} else {
-				fmt.Println("Uninstall success")
+				Logger.Info("Uninstall success")
 			}
 			return
 		}
@@ -52,7 +51,6 @@ func main() {
 
 	err = s.Run() // 运行服务
 	if err != nil {
-		fmt.Println("s.Run err", err)
+		Logger.Error("service.Run err: ", zap.Error(err))
 	}
 }
-
