@@ -1,5 +1,8 @@
 # 基于go的开机启动服务管理
 
+# 添加配置文件
+> cp service_template.json service.json
+
 # 打包编译成exe
 > go build -o auto.exe
 
